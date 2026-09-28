@@ -113,6 +113,13 @@ def save_buffer(buffer,folder):
 def load_buffer(path):
     with open(path, "r", encoding="utf-8") as file:
         text = file.read()
-    # we use Pydantic rechecks so a damaged or incorrect JSON is refused
-    return Buffer.model_validate_json(text)
+    # Pydantic re-checks types and required fields
+    loaded = Buffer.model_validate_json(text)
+
+    # The ID and subgoal rules are from add_record, so every record goes through it again. We check the contents of the file.
+    verified_buffer = Buffer(run_id=loaded.run_id, research_question=loaded.research_question, creation_date=loaded.creation_date, status=loaded.status, subgoals=loaded.subgoals)
+    for record in loaded.retrieved_records:
+        verified_buffer.add_record(record)
+
+    return verified_buffer
 
