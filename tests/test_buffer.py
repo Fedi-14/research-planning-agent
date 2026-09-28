@@ -1,5 +1,6 @@
 from datetime import datetime
 from academic_research_agents.buffer import Buffer, Subgoal, RetrievedRecord
+from academic_research_agents.buffer import Buffer, RetrievedRecord, Subgoal, save_buffer, load_buffer
 
 def test_add_record():
     buffer = Buffer(run_id="test_run", research_question="Test question?" , creation_date=datetime.now())
@@ -56,3 +57,14 @@ def test_buffer_with_done_and_failed_subgoals_is_ready():
     buffer.subgoals.append(Subgoal(subgoal_id=2, description="Second subgoal", status="failed"))
 
     assert buffer.is_ready() is True
+
+def test_buffer_save_and_load():
+    buffer = Buffer(run_id="test-run", research_question="Test question", creation_date=datetime.now())
+    buffer.subgoals.append(Subgoal(subgoal_id=1, description="Test subgoal", status="done"))
+    record = RetrievedRecord(source="pubmed", pubmed_id="123456", title="Test paper", authors=["A. Author"], subgoal_id=1, retrieval_date=datetime.now())
+    buffer.add_record(record)
+
+    path = save_buffer(buffer, "test_output")
+    loaded = load_buffer(path)
+
+    assert loaded == buffer

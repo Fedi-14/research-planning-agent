@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Literal
 from pydantic import BaseModel, ConfigDict
+import os
 
 class RetrievedRecord(BaseModel):
     """ A paper found in the research process. """
@@ -99,4 +100,19 @@ class Buffer(BaseModel):
         return True
 
 
-        
+def save_buffer(buffer,folder):
+    # We generate one JSOn file for each run. This is the file build by the first agent and used by the second
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, f"{buffer.run_id}.json")
+    with open(path, "w", encoding="utf-8") as file:
+        # indent=2 puts each field on its own line, so the file is readable as evidence
+        file.write(buffer.model_dump_json(indent=2))
+    return path
+
+
+def load_buffer(path):
+    with open(path, "r", encoding="utf-8") as file:
+        text = file.read()
+    # we use Pydantic rechecks so a damaged or incorrect JSON is refused
+    return Buffer.model_validate_json(text)
+
