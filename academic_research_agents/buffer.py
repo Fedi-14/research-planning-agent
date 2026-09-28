@@ -64,7 +64,7 @@ class Buffer(BaseModel):
     retrieved_records: list[RetrievedRecord] = []
 
     def add_record(self, record:RetrievedRecord):
-        # Check if the record has at least one valid ID before adding it to the buffer.(team report section 2.2)
+        # Check if the retrieved record has at least one valid ID before adding it to the buffer.(team report section 2.2)
         if record.pubmed_id is None and record.doi is None and record.semantic_scholar_id is None:
             raise ValueError("At least one of pubmed_id, doi, or semantic_scholar_id must be provided.")
         
@@ -82,8 +82,21 @@ class Buffer(BaseModel):
         self.retrieved_records.append(record)
 
 
+    def is_ready(self):
+        # If there are no subgoals in the buffer, it is not ready.
+        if len(self.subgoals) == 0:
+            return False
 
-
+        # If there is even one subgoal that isn't ready in the Buffer, the buffer is not ready. 
+        is_pending = False  
+        for subgoal in self.subgoals:
+            if subgoal.status == "pending":
+                is_pending = True
+        
+        if is_pending: 
+            return False
+        
+        return True
 
 
         
