@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Literal
 from pydantic import BaseModel, ConfigDict
 import os
+import requests
 
 class RetrievedRecord(BaseModel):
     """ A paper found in the research process. """
@@ -122,4 +123,3 @@ def load_buffer(path):
         verified_buffer.add_record(record)
 
     return verified_buffer
-
