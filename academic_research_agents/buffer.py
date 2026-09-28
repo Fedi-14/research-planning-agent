@@ -47,3 +47,43 @@ class Subgoal(BaseModel):
     search_queries: list[str] = []
     status: Literal["pending", "done", "failed"] = "pending"
     error_message: str | None = None
+
+
+
+class Buffer(BaseModel):
+    ''' The JSON buffer : one for each run, it handles all the subgoals and retrieved records. '''
+
+    # Strict Mode: reject wrong types instead of converting them (team report, figure3)
+    model_config = ConfigDict(strict=True)
+
+    run_id: str
+    research_question: str
+    creation_date: datetime
+    status: Literal["in_progress", "ready"] = "in_progress"
+    subgoals: list[Subgoal] = []
+    retrieved_records: list[RetrievedRecord] = []
+
+    def add_record(self, record:RetrievedRecord):
+        # Check if the record has at least one valid ID before adding it to the buffer.(team report section 2.2)
+        if record.pubmed_id is None and record.doi is None and record.semantic_scholar_id is None:
+            raise ValueError("At least one of pubmed_id, doi, or semantic_scholar_id must be provided.")
+        
+        # We go through all the subgoals in the buffer
+        subgoal_exist = False
+        for subgoal in self.subgoals:
+            if record.subgoal_id == subgoal.subgoal_id:
+                subgoal_exist = True
+            
+        # After checking all subgoals we raise an error saying the subgoal doesn't exist in the buffer
+        if not subgoal_exist:
+            raise ValueError(f"Subgoal with ID {record.subgoal_id} not found in the buffer.")
+        
+        # If the subgoal exists in the buffer, we add it to the retrieved records list
+        self.retrieved_records.append(record)
+
+
+
+
+
+
+        
