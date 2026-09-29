@@ -47,7 +47,7 @@ def fetch_pubmed_records(list_pubmed_id, subgoal_id):
         # MedlineCitation in pubmed stores the paper's description: PMID and the Article (title, abstract, authors) 
         pubmed_id = article.findtext("MedlineCitation/PMID")
         # We extract details here
-        title = ".".join(article.find("MedlineCitation/Article/ArticleTitle"))
+        title = ".".join(article.find("MedlineCitation/Article/ArticleTitle").itertext())
         
         retrieved_record = RetrievedRecord(source="pubmed", pubmed_id=pubmed_id, title=title, authors=[], subgoal_id=subgoal_id, retrieval_date=datetime.now())
         retrieved_records.append(retrieved_record)
