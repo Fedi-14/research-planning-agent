@@ -106,18 +106,39 @@ def fetch_pubmed_records(list_pubmed_id, subgoal_id):
 
 
 def search_and_fetch_semantic_scholar(query, max_results, subgoal_id):
-    # We ask only for the fields we need for a RetrievedRecord
+    # we ask only for the fields we need for a RetrievedRecord
     params = {"query": query, "limit": max_results, "fields": "title,abstract,authors,year,publicationDate,externalIds"}
     response = requests.get(SEMANTIC_SCHOLAR_SEARCH_URL, params=params, timeout=30)
     response.raise_for_status()
     data = response.json()
 
     retrieved_records = []
-    # We return an empty list When nothing is found.
+    # we return an empty list When nothing is found.
     if ("data" not in data):
         return 
         
     for paper in data["data"]:
-        # We skip any paper that doesn't have a title 
+        # we skip any paper that doesn't have a title 
         if (paper.get("title") is None):
             continue
+
+    # we use the DOI and pubmed ID that semantic scholar has. this will help find duplicates with pubmed later
+        doi = None
+        pubmed_id = None
+        external_ids = paper.get("externalIds")
+        if (external_ids is not None):
+            doi = external_ids.get("DOI")
+            pubmed_id = external_ids.get("PubMed")
+
+        # if there's no abstract we return none instead of ""
+        abstract = paper.get("abstract")
+        if (abstract is not None) and (abstract.strip() == ""):
+            abstract = None
+
+        # we find authors and add them to the author_list
+        author_list = []
+        for author in paper.get("authors", []):
+            if (author.get("name") is not None):
+                author_list.append(author["name"])
+
+        
