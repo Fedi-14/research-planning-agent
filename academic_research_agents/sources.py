@@ -115,7 +115,7 @@ def search_and_fetch_semantic_scholar(query, max_results, subgoal_id):
     retrieved_records = []
     # we return an empty list When nothing is found.
     if ("data" not in data):
-        return 
+        return retrieved_records
         
     for paper in data["data"]:
         # we skip any paper that doesn't have a title 
@@ -141,4 +141,15 @@ def search_and_fetch_semantic_scholar(query, max_results, subgoal_id):
             if (author.get("name") is not None):
                 author_list.append(author["name"])
 
-        
+        # we keep dates as text, like PubMed. we keep the full date if  it's know and we keep otherwise the year.
+        # we need str() because the year comes as a number, and strict mode would refuse it
+        publication_date = None
+        if (paper.get("publicationDate") is not None):
+            publication_date = paper["publicationDate"]
+        elif (paper.get("year") is not None):
+            publication_date = str(paper["year"])
+
+        retrieved_record = RetrievedRecord(source="semantic_scholar", semantic_scholar_id=paper["paperId"], pubmed_id=pubmed_id, doi=doi, title=paper["title"], abstract=abstract, authors=author_list, publication_date=publication_date, subgoal_id=subgoal_id, retrieval_date=datetime.now())
+        retrieved_records.append(retrieved_record)
+
+    return retrieved_records
