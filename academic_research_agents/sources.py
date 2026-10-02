@@ -47,9 +47,54 @@ def fetch_pubmed_records(list_pubmed_id, subgoal_id):
         # MedlineCitation in pubmed stores the paper's description: PMID and the Article (title, abstract, authors) 
         pubmed_id = article.findtext("MedlineCitation/PMID")
         # We extract details here
-        title = ".".join(article.find("MedlineCitation/Article/ArticleTitle").itertext())
+        title = "".join(article.find("MedlineCitation/Article/ArticleTitle").itertext())
         
-        retrieved_record = RetrievedRecord(source="pubmed", pubmed_id=pubmed_id, title=title, authors=[], subgoal_id=subgoal_id, retrieval_date=datetime.now())
+        # We find for the abstract content inside the article. It can be in the background, methods or results ... so we collect them all 
+        abstract_parts = []
+        for part in article.findall("MedlineCitation/Article/Abstract/AbstractText"):
+            abstract_parts.append("".join(part.itertext()))
+
+        abstract = " ".join(abstract_parts)
+        if (abstract.strip() == ""):
+            abstract = None
+
+        # we find authors
+        author_list = []
+        for author in article.findall("MedlineCitation/Article/AuthorList/Author"):
+            last_name = author.findtext("LastName")
+            first_name = author.findtext("ForeName")
+            group_name = author.findtext("CollectiveName") 
+
+            if (last_name is not None) and (first_name is not None):
+                author_list.append(first_name + " " +last_name)
+            elif (last_name is not None):
+                author_list.append(last_name)
+            elif (group_name is not None):
+                author_list.append(group_name)
+
+        # we find the publication date. pubmed gives partial dates ("2024 Jun") or vague ones ("2021 Mar-Apr").
+        publication_date = None
+        date_element = article.find("MedlineCitation/Article/Journal/JournalIssue/PubDate")
+        if (date_element is not None):
+            vague_date = date_element.findtext("MedlineDate")
+            year = date_element.findtext("Year")
+            month = date_element.findtext("Month")
+
+            if (vague_date is not None):
+                publication_date = vague_date
+            elif (year is not None) and (month is not None):
+                publication_date = year + " " + month
+            elif (year is not None):
+                publication_date = year
+
+        # we find the DOI (Digital Object Identifier) in the list of IDs pubmed gives for the article. We need it later for the Cross referecing check
+        doi = None
+        for article_id in article.findall("PubmedData/ArticleIdList/ArticleId"):
+            if (article_id.get("IdType") == "doi"):
+                doi = article_id.text
+
+        
+                retrieved_record = RetrievedRecord(source="pubmed", pubmed_id=pubmed_id, doi=doi, title=title, abstract=abstract, authors=author_list, publication_date=publication_date, subgoal_id=subgoal_id, retrieval_date=datetime.now())
         retrieved_records.append(retrieved_record)
 
     return retrieved_records
