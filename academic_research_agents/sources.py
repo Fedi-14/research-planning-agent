@@ -9,6 +9,10 @@ import xml.etree.ElementTree as ET
 PUBMED_SEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 PUBMED_FETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
+# Semantic Scholar's paper search. One call is enough to get the paper ID and the details 
+SEMANTIC_SCHOLAR_SEARCH_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
+
+
 def search_pubmed(query, max_results, subgoal_id):
     # In PubMed the search only returns IDs. So we need 2 calls, one for search and we retrieve IDs then we fetch the details using fetch
     list_pubmed_id = search_list_pubmed_id(query, max_results)
@@ -94,7 +98,26 @@ def fetch_pubmed_records(list_pubmed_id, subgoal_id):
                 doi = article_id.text
 
         
-                retrieved_record = RetrievedRecord(source="pubmed", pubmed_id=pubmed_id, doi=doi, title=title, abstract=abstract, authors=author_list, publication_date=publication_date, subgoal_id=subgoal_id, retrieval_date=datetime.now())
+        retrieved_record = RetrievedRecord(source="pubmed", pubmed_id=pubmed_id, doi=doi, title=title, abstract=abstract, authors=author_list, publication_date=publication_date, subgoal_id=subgoal_id, retrieval_date=datetime.now())
         retrieved_records.append(retrieved_record)
 
     return retrieved_records
+
+
+
+def search_and_fetch_semantic_scholar(query, max_results, subgoal_id):
+    # We ask only for the fields we need for a RetrievedRecord
+    params = {"query": query, "limit": max_results, "fields": "title,abstract,authors,year,publicationDate,externalIds"}
+    response = requests.get(SEMANTIC_SCHOLAR_SEARCH_URL, params=params, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+
+    retrieved_records = []
+    # We return an empty list When nothing is found.
+    if ("data" not in data):
+        return 
+        
+    for paper in data["data"]:
+        # We skip any paper that doesn't have a title 
+        if (paper.get("title") is None):
+            continue
