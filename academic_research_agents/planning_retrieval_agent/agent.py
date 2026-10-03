@@ -2,8 +2,12 @@ from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.errors import GraphRecursionError
+from datetime import datetime
 
 from academic_research_agents.planning_retrieval_agent.tools import SubgoalTools
+from academic_research_agents.buffer import Buffer, save_buffer
+from academic_research_agents.planning_retrieval_agent.subgoals import generate_subgoals
+
 
 # we stop the agent after 15 steps. a normal run is at most 11 steps: each search is 2 steps (gemini, then the tool),
 # 4 searches make 8, then finish_subgoal is 2 more, and gemini's last answer is 1. 15 is just to be safe we don't interrupt before the process is done
@@ -41,3 +45,35 @@ def run_subgoal(buffer, subgoal):
         else:
             subgoal.status = "done"
             print(f"[subgoal {subgoal.subgoal_id}] finished without finish_subgoal, closed by the code")
+
+
+def run_planning_agent(research_question):
+    # we use one one buffer for each run and we name it using the date and time so two runs don't overwrite each other
+    # we use strftime because windows doesn't allow ":" in file names
+    run_id = "run-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    buffer = Buffer(run_id=run_id, research_question=research_question, creation_date=datetime.now())
+
+    # gemini splits the question into subgoals (after 4 invalid answers it stops and a person review is needed)
+    buffer.subgoals = generate_subgoals(research_question)
+
+    # we run the react loop for each subgoal, one after the other
+    for subgoal in buffer.subgoals:
+        print(f"-- subgoal {subgoal.subgoal_id}: {subgoal.description}")
+        # if one subgoal fails (for example pubmed is down), we mark it failed and continue with the next one
+        # we don't stop if one subgoal fails, we add it to the report and continue (team report section 6)
+        try:
+            run_subgoal(buffer, subgoal)
+        except Exception as error:
+            subgoal.status = "failed"
+            subgoal.error_message = str(error)
+            print(f"[subgoal {subgoal.subgoal_id}] failed")
+            print(error)
+
+    # we mark the buffer as ready when every subgoal is done or failed
+    if buffer.is_ready():
+        buffer.status = "ready"
+
+    # the file is what the curation agent will reads after
+    path = save_buffer(buffer, "runs")
+    print(f"-- run finished: {len(buffer.retrieved_records)} records, status {buffer.status}, saved to {path}")
+    return buffer
