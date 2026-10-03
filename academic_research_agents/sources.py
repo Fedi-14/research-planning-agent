@@ -21,7 +21,7 @@ def search_pubmed(query, max_results, subgoal_id):
 
 def search_list_pubmed_id(query, max_results):
     # We ask for JSON so the answer can be read directly in Python
-    params = {"db": "pubmed", "term": query, "retmode": "json", "retmax": max_results}
+    params = {"db": "pubmed", "term": query, "retmode": "json", "retmax": max_results, "sort": "relevance"}
 
     # timeout: we stop after 30 seconds instead of waiting forever if PubMed doesn't answer
     response = requests.get(PUBMED_SEARCH_URL, params=params, timeout=30)
