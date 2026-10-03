@@ -56,6 +56,5 @@ def generate_subgoals(research_question):
     return subgoals
 
 
-
     
 
