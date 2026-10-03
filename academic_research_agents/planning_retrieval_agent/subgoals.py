@@ -16,7 +16,7 @@ class SubgoalList(BaseModel):
     model_config = ConfigDict(strict=True)
 
     # we set the subgoald from a research question to 2 and 5: less isn't a decomposition, more is too much
-    descriptions: list[str] = Field(min_length=2, max_length=6)
+    descriptions: list[str] = Field(min_length=2, max_length=5)
 
 
 def generate_subgoals(research_question):
@@ -24,7 +24,7 @@ def generate_subgoals(research_question):
     load_dotenv()
     research_model = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
     # The model's answer is forced into SubgoalList, and checked again when it comes back
-    research_planner = model.with_structured_output(SubgoalList)
+    research_planner = research_model.with_structured_output(SubgoalList)
 
     prompt = f"""act as a researcher in the medecine field. Plan a literature search for a health-sciences research group preparing a systematic review. 
     Split the research question below into 2 to 5 subgoals.
@@ -36,16 +36,20 @@ def generate_subgoals(research_question):
     # we try from 1 to 3 times, if we still don't get a valid answer (too few descriptions of the subgoal, too many descriptions or invalid non JSON format)
     research_plan = None
     for research_attempt in range (MAX_ATTEMPTS):
-        research_plan = research_planner
+        try:
+            research_plan = research_planner.invoke(prompt)
+            break
+        except OutputParserException:
+            print(f"Attempt {research_attempt + 1} of {MAX_ATTEMPTS}: the subgoal list was invalid, asking again")
     
     # After 3 invalid answers from gemini, we stop. a person has to look at the  question
-    if (research_plan is None)
+    if (research_plan is None):
         raise ValueError(f"No valid subgoal list after 3 attempts. A person is needed to review the research question")
 
     # we return the subgoals and give them statuses, the model only proposes the descriptions
-    subgoals[]
+    subgoals = []
     number =1
-    for descriptions in research_plan.descriptions:
+    for description in research_plan.descriptions:
             subgoals.append(Subgoal(subgoal_id=number, description=description))
             number = number +1
 
