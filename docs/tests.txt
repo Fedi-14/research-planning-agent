@@ -1,0 +1,118 @@
+TEST EVIDENCE - research planning agent
+
+the command used for each test, what failed, what we fixed, and the result.
+
+TEST 1 - pubmed search
+python -c "from academic_research_agents.sources import search_list_pubmed_id; print(search_list_pubmed_id('exercise depression older adults', 5))"
+Failed: python took my windows username as the proxy address.
+Fixed: we used the same proxy setting as pip.
+OK: 5 pubmed IDs returned.
+
+TEST 2 - pubmed fetch, the title
+python -c "from academic_research_agents.sources import search_list_pubmed_id, fetch_pubmed_records; records = fetch_pubmed_records(search_list_pubmed_id('exercise depression older adults', 3), 1); print(len(records), records[0].title)"
+Failed: we asked pubmed for JSON, but full records only come in XML.
+Fixed: we asked for XML.
+Failed again: a title came back empty.
+Fixed: we read the whole title with itertext().
+OK: 3 records, with their full titles.
+
+TEST 3 - pubmed fetch, the abstract
+python -c "from academic_research_agents.sources import search_list_pubmed_id, fetch_pubmed_records; records = fetch_pubmed_records(search_list_pubmed_id('exercise depression older adults', 3), 1); print(records[0].abstract)"
+OK: the full abstract printed, its sections joined into one text.
+
+TEST 4 - pubmed fetch, the date and the doi
+python -c "from academic_research_agents.sources import search_list_pubmed_id, fetch_pubmed_records; records = fetch_pubmed_records(search_list_pubmed_id('exercise depression older adults', 3), 1); print(records[0].publication_date, records[0].doi)"
+Failed: the terminal wasn't using the project's virtual environment.
+Fixed: we activated .venv.
+Failed again: it printed None None, the date and the doi were read but never given to the record.
+Fixed: we passed them to RetrievedRecord.
+OK: 2026 Sep and 10.57187/5162.
+
+TEST 5 - pubmed fetch, the authors
+python -c "from academic_research_agents.sources import search_list_pubmed_id, fetch_pubmed_records; records = fetch_pubmed_records(search_list_pubmed_id('exercise depression older adults', 3), 1); print(records[0].authors)"
+OK: 11 authors listed, with their first and last names.
+
+TEST 6 - pubmed search and fetch in one call
+python -c "from academic_research_agents.sources import search_pubmed; records = search_pubmed('exercise depression older adults', 3, 1); print(len(records), records[0].title)"
+OK: 3 records, with their titles.
+
+TEST 7 - semantic scholar search
+python -c "from academic_research_agents.sources import search_and_fetch_semantic_scholar; records = search_and_fetch_semantic_scholar('exercise depression older adults', 3, 1); print(len(records), records[0].title, records[0].pubmed_id)"
+Failed: semantic scholar answered 429 too many requests. Without an API key, all users share one quota.
+Not fixed: we asked for a free API key, and we use pubmed only for now.
+
+TEST 8 - gemini connection
+python -c "from dotenv import load_dotenv; load_dotenv(); from langchain_google_genai import ChatGoogleGenerativeAI; model = ChatGoogleGenerativeAI(model='gemini-3.6-flash'); print(model.invoke('Say hello in five words.').text)"
+OK: gemini answered "Hello, nice to meet you!". The first line printed is a warning from google's library, not an error.
+
+TEST 9 - gemini splits the question into subgoals
+python -c "from academic_research_agents.planning_retrieval_agent.subgoals import generate_subgoals; subgoals = generate_subgoals('Does exercise reduce depression in older adults?'); print(len(subgoals)); print(subgoals[0].description)"
+Failed: the terminal wasn't using the project's virtual environment.
+Fixed: we activated .venv.
+OK: 4 subgoals.
+
+TEST 10 - the agent's tools on real pubmed
+python -c "from datetime import datetime; from academic_research_agents.buffer import Buffer, Subgoal; from academic_research_agents.planning_retrieval_agent.tools import SubgoalTools; buffer = Buffer(run_id='try', research_question='Does exercise reduce depression in older adults?', creation_date=datetime.now()); subgoal = Subgoal(subgoal_id=1, description='Trials of exercise for depression in older adults'); buffer.subgoals.append(subgoal); search, finish = SubgoalTools(buffer, subgoal).as_tool_list(); print(search.invoke({'query': 'exercise depression aged', 'reason': 'first search'})); print(finish.invoke({'reason': 'enough found'})); print(len(buffer.retrieved_records), subgoal.status)"
+Failed: it ran, but the papers were mostly off-topic and all very recent. Pubmed sorts results by most recent by default.
+Fixed: we asked pubmed to sort by relevance.
+OK: same search, the papers are now about exercise and depression in older adults.
+
+TEST 11 - the agent works on one subgoal by itself
+python -c "from datetime import datetime; from academic_research_agents.buffer import Buffer, Subgoal; from academic_research_agents.planning_retrieval_agent.agent import run_subgoal; buffer = Buffer(run_id='try', research_question='Does exercise reduce depression in older adults?', creation_date=datetime.now()); subgoal = Subgoal(subgoal_id=1, description='Randomised trials of exercise for depression in adults over 65'); buffer.subgoals.append(subgoal); run_subgoal(buffer, subgoal); print(len(buffer.retrieved_records), subgoal.status, subgoal.search_queries)"
+OK: gemini searched pubmed twice, made the second search more precise, then decided it had enough. 20 papers saved.
+
+TEST 12 - the planning agent, the whole run
+python -c "from academic_research_agents.planning_retrieval_agent.agent import run_planning_agent; run_planning_agent('Does exercise reduce depression in older adults?')"
+OK: 3 subgoals, 91 papers saved in the buffer file.
+Subgoal 3 stopped when gemini's free limit of 20 requests a day was reached. It was marked failed and the run went on and saved the file, as designed.
+
+TEST 13 - the planning agent, a second question the same day
+python -c "from academic_research_agents.planning_retrieval_agent.agent import run_planning_agent; run_planning_agent('How does family and friend impact health?')"
+Failed: gemini's limit of 20 requests a day was already used.
+Not fixed: the limit resets every day, so we do one full run per day.
+Also found: when this happens while making the subgoals, the run stops with the raw error and saves nothing. We kept it as a known limitation.
+
+TEST 14 - the curation agent loads the buffer and removes duplicates
+python -c "from academic_research_agents.curation_agent.agent import prepare_records; buffer, records = prepare_records('runs/run-20261003-143030.json')"
+Failed: python couldn't find prepare_records. The file wasn't saved (a missing ctrl+s).
+Fixed: we saved the file.
+OK: 91 papers in the buffer, 68 after removing duplicates.
+
+TEST 15 - saving the reviewer's decisions in sqlite
+python -c "from academic_research_agents.curation_agent.agent import prepare_records; from academic_research_agents.curation_agent.decisions import save_decision, get_approved; buffer, records = prepare_records('runs/run-20261003-143030.json'); save_decision(records[0], 'approve', buffer.run_id); save_decision(records[1], 'reject', buffer.run_id); print(get_approved())"
+Failed: table decisions already exists. The table was created again on every save.
+Fixed: CREATE TABLE IF NOT EXISTS.
+OK: 2 decisions saved, and the approved paper read back.
+
+TEST 16 - the review page
+python -m streamlit run app.py
+Failed: streamlit run app.py wasn't recognised, streamlit wasn't installed in .venv.
+Fixed: we installed it, and run it with python -m streamlit.
+OK: the page opened with the 68 papers.
+Also found: streamlit sent usage statistics to the US, and the page could be opened from the company network.
+Fixed: .streamlit/config.toml switches the statistics off and keeps the page on localhost only.
+OK: the page now opens on localhost only.
+
+TEST 17 - gemini chooses the best papers
+python -c "from academic_research_agents.curation_agent.agent import run_curation_agent; run_curation_agent('runs/run-20261003-143030.json')"
+OK: 10 papers chosen out of 68, all 10 quotes found word for word in their abstracts.
+
+TEST 18 - is the off-topic knee paper among gemini's choices?
+Select-String -Path runs\run-20261003-143030-choices.json -Pattern "40198073"
+OK: not found. It was the first paper in the buffer, and gemini left it out.
+
+TEST 19 - the review page on gemini's choices
+python -m streamlit run app.py
+OK: 5 decisions saved.
+
+
+---- UNIT TESTS ----
+python -m pytest
+OK: 8 passed.
+7 for the buffer: adding a paper, refusing a paper with no ID or an unknown subgoal, when the buffer is ready, saving and loading.
+1 for the agent's tools: a 5th search never reaches pubmed.
+
+---- AI acknowledgement ----
+
+To learn the syntax of running a test (python -c to run code between "" python -m run an installed tool and python to run code in a file) i used Claude (Anthropic) to help me understand and see examples of these commands.
+to debug some of the errors i couldn't fix myself and i didn't find in a web search, i would ask Claude to explain the error more so i can find a solution. 
