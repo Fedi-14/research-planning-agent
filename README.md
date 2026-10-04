@@ -16,7 +16,7 @@ For each subgoal, Gemini searches pubmed, reads the titles, makes the search mor
 Everything returned is saved in a buffer file under runs folder.
 
 The Curation Agent removes duplicates and sends all the papers to gemini in one request. Gemini chooses a number that doesn't surpass 10, each paper with a sentence copied from its abstract. 
-We check that every quote is really in the abstract, word for word.
+I check that every quote is really in the abstract, word for word.
 The reviewer opens the review page then reads the chosen papers and he will find 3 choices Approve, Flag or Reject. 
 The decicions are then savec in sqlite database.
 
@@ -30,22 +30,22 @@ academic_research_agents
         agent.py                  the react loop and the planning run
     curation_agent
         agent.py                  the agent to remove duplicates, do gemini ranking and check the quote
-        decisions.py              the decisions are where we save the reviewer decisions in sqlite
+        decisions.py              the decisions are where I save the reviewer decisions in sqlite
 app.py                            the review page (streamlit)
-tests/                            the unit tests
+tests                             the unit tests
 
 ---- Install -----
-we needed Python 3.13.
+I needed Python 3.13.
 
 pip install -r requirements.txt
 
 Create a file called .env at the project root with your Gemini API key (free, from Google AI Studio):
 
-GOOGLE_API_KEY= the key goes here (AQ.Ab8RN*******************)
+GOOGLE_API_KEY= *******************
 
 The .env file is ignored by Git, so the key is never published.
 
-I did this project with a company proxy, to do so we set it in the terminal before running:
+I did this project with a company proxy, to do so I set it in the terminal before running:
 
 $env:HTTPS_PROXY = "http://********************"
 
@@ -67,12 +67,12 @@ This saves Gemini's choices next to the buffer, for example runs/run-20261003-14
 
 python -m streamlit run app.py
 
-This opens the page in the browser. We put the run's file name in the box and press Enter. And then we choose a decision for each paper, and finally we click Save decisions.
+This opens the page in the browser. The reviewer put the run's file name in the box and press Enter. And then he chooses a decision for each paper, and finally he clicks Save decisions.
 
 ---- Tests ----
 python -m pytest
 
-There are 8 unit tests: 7 for the buffer and 1 for the search limit of the agent's tools. The functional tests on real data, with their exact outputs and every problem found and fixed, are in docs/test_evidence.txt.
+There are 8 unit tests: 7 for the buffer and 1 for the search limit of the agent's tools. The functional tests on real data, with their exact outputs and every problem found and fixed, are in docs/tests.txt.
 
 ---- Data and GDPR ----
 
@@ -84,7 +84,7 @@ What stays on the computer/what is handled internally:
 The buffer files in runs and the database evidence_store.db stay on this computer, and are not published: both are ignored in git
 The API key in .env which is also ignored in git.
 
-An extra privacy step done is that we switched off Streamlit usage stats and the review page only opens on this computer (localhost) (streamlit/config.toml)
+An extra privacy step done is that I switched off Streamlit usage stats and the review page only opens on this computer (localhost) (streamlit/config.toml)
 
 LangSmith, LangChain's tracing service, is installed with LangChain but not switched on, so no data is sent to it.
 
@@ -92,12 +92,12 @@ LangSmith, LangChain's tracing service, is installed with LangChain but not swit
 Gemini free version: 20 requests a day for gemini-3.6-flash. One complete planning test or run uses about 20, so a full run with planning then curation must be done over two days.
 
 PubMed only: the Semantic Scholar search is written, but without an API key it answers "429 Too Many Requests".
-An error while generating the subgoals stops the run with the raw error, and no buffer file is saved (we added it to the test evidence).
+An error while generating the subgoals stops the run with the raw error, and no buffer file is saved (I added it to the tests file).
 
-If we clicking save twice saves the same decisions is saved twice.
+If someone clicks save twice the same decisions is saved twice.
 Not built, for time: the Crossref retraction check, retrying with back-off after API errors, and the full recall evaluation.
 
 
 ---- AI acknowledgement ----
 
-I used Claude (Anthropic) to help me set a plan for tests, I asked it after explaining the workflow what tests I need and it helped me with the list of tests to write myself.
+I used Claude (Anthropic) to help me set a plan for tests, I asked it after explaining the workflow what unit tests I need and it helped me with the list of tests to write myself.
