@@ -112,6 +112,30 @@ OK: 8 passed.
 7 for the buffer: adding a paper, refusing a paper with no ID or an unknown subgoal, when the buffer is ready, saving and loading.
 1 for the agent's tools: a 5th search never reaches pubmed.
 
+
+---- PROBLEMS FOUND --
+
+Problem: search_queries started as None, so adding the first query would crash.
+Fixed: it starts as an empty list.
+
+Problem: the Buffer class was written inside the Subgoal class.
+Fixed: we moved it out.
+
+Problem: add_record decided inside the loop, so a paper for a real subgoal could be refused.
+Fixed: it decides after checking every subgoal.
+
+Problem: add_record had has_record = false, python wants False.
+Fixed: we removed the line, it wasn't used.
+
+Problem: is_ready said ready with one subgoal done and two still pending.
+Fixed: it now says not ready as soon as one subgoal is pending.
+
+Problem: load_buffer only checked the types, so a paper with no ID could load.
+Fixed: every paper goes through add_record again when loading.
+
+Problem: gemini had 3 tries for the subgoals, the report says 1 try and 3 retries.
+Fixed: 4 tries.
+
 ---- AI acknowledgement ----
 
 To learn the syntax of running a test (python -c to run code between "" python -m run an installed tool and python to run code in a file) i used Claude (Anthropic) to help me understand and see examples of these commands.
