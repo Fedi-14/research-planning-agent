@@ -5,3 +5,4 @@ langchain==1.4.3
 langgraph==1.2.12
 langchain-google-genai==4.4.0
 python-dotenv==1.2.4
+streamlit==1.65.0
