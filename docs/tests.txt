@@ -105,6 +105,12 @@ TEST 19 - the review page on gemini's choices
 python -m streamlit run app.py
 OK: 5 decisions saved.
 
+TEST 20 - the planning agent on my own question (demo 1)
+python -c "from academic_research_agents.planning_retrieval_agent.agent import run_planning_agent; run_planning_agent('Are family, friends and social connections associated with better health in adults?')"
+Failed first: the proxy wasn't set in the terminal, python couldn't reach google.
+Fixed: I set the proxy.
+OK, with failures handled: 4 subgoals, 20 papers saved. Gemini hit three limits: overloaded (503), 5 requests per minute, and 20 requests per day. Each subgoal was marked failed, and the run went on and saved the file, as designed.
+
 
 ---- UNIT TESTS ----
 python -m pytest
