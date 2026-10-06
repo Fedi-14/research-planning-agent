@@ -97,6 +97,47 @@ An error while generating the subgoals stops the run with the raw error, and no 
 If someone clicks save twice the same decisions is saved twice.
 Not built, for time: the Crossref retraction check, retrying with back-off after API errors, and the full recall evaluation.
 
+---- Libraries, models and data sources ----
+
+Libraries :
+pydantic: checks the data in the buffer and gemini answers
+langchain and langgraph : connects gemini to the tools and runs the react loop
+langchain-google-genai: the connection to gemini
+requests: calls to pubmed and semantic scholar
+python-dotenv: reads the API key from the .env file
+streamlit: the review page
+pytest: the unit tests
+
+Built into python so no need to instll anything :
+sqlite3 
+os
+
+AI Model used: 
+Gemini 3.6 Flash (Google) and exactly the free tier
+
+Data sources:
+PubMed was used using the NCBI E-utilities
+Semantic Scholar API (written, not used by the agent for now)
+
+Tools: VS Code, Git and GitHub
+
+
+---- References ----
+
+Bratman, M.E., Israel, D.J. and Pollack, M.E. (1988) 'Plans and resource-bounded practical reasoning', Computational Intelligence, 4(3), pp. 349-355.
+
+Finin, T. et al. (1994) 'KQML as an Agent Communication Language', Proceedings of the Third International Conference on Information and Knowledge Management (CIKM '94), Gaithersburg, MD. New York: ACM, pp. 456-463. Available at: https://doi.org/10.1145/191246.191322
+
+Google DeepMind (2026) Gemini 3.6 Flash: model card. Available at: https://deepmind.google/models/model-cards/gemini-3-6-flash/ (Accessed: 27 August 2026).
+
+National Library of Medicine (n.d.) The 9 E-utilities and Associated Parameters. Available at: https://dataguide.nlm.nih.gov/eutilities/utilities.html (Accessed: 3 October 2026).
+
+Wang, Z. et al. (2025) 'A foundation model for human-AI collaboration in medical literature mining', Nature Communications, 16(1), 8361. Available at: https://doi.org/10.1038/s41467-025-62058-5
+
+Wooldridge, M. (2009) An Introduction to MultiAgent Systems. 2nd edn. Chichester: John Wiley & Sons.
+
+Yao, S. et al. (2023) 'ReAct: Synergizing Reasoning and Acting in Language Models', 11th International Conference on Learning Representations (ICLR 2023), Kigali, Rwanda, 1-5 May. Available at: https://doi.org/10.48550/arXiv.2210.03629
+
 
 ---- AI acknowledgement ----
 
