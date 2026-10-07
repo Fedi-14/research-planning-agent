@@ -90,7 +90,7 @@ LangSmith, LangChain's tracing service, is installed with LangChain but not swit
 
 ---- Limitations----
 Gemini free version: the project started on gemini-3.6-flash that allows 20 requests a day and 5 a minute. A signle planning agent execution/run used most of a day, and the demo runs failed on these limits. It now uses gemini-3.5-flash-lite that allows 500 requests a day and 15 a minute, with this change the planning and curation agents can run both on the same day. What this change costed is simpler search queries, and only 5 of 7 quotes found word for word (10 of 10 with gemini-3.6-flash).
-
+But the second run was 10 out of 10, we can't say say the lite version was less effective.  
 
 PubMed only: the Semantic Scholar search is written, but without an API key it answers "429 Too Many Requests".
 An error while generating the subgoals stops the run with the raw error, and no buffer file is saved (I added it to the tests file).
