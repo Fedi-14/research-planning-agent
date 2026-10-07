@@ -5,8 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from academic_research_agents.buffer import Subgoal
 
-# google gemini has 3 attempts to generate a valid list of subgoals, then a person has to review i (team report)
-MAX_ATTEMPTS = 3
+# google gemini has 4 attempts to generate a valid list of subgoals, then a person has to review i (team report)
+MAX_ATTEMPTS = 4
 
 
 class SubgoalList(BaseModel):
@@ -22,7 +22,7 @@ class SubgoalList(BaseModel):
 def generate_subgoals(research_question):
     # we use the API key from the .env file 
     load_dotenv()
-    research_model = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+    research_model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
     # The model's answer is forced into SubgoalList, and checked again when it comes back
     research_planner = research_model.with_structured_output(SubgoalList)
 
