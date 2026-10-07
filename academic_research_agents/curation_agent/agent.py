@@ -69,7 +69,7 @@ For each paper return it's PMID, one sentence copied word for word from it's abs
 {papers_text}"""
 
     load_dotenv()
-    model = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+    model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
     chooser = model.with_structured_output(PaperChoiceList)
     choices = chooser.invoke(prompt)
 

@@ -23,7 +23,7 @@ Call finish_subgoal when you have enough relevant papers, or when you realize mo
 def run_subgoal(buffer, subgoal):
     # we use the API key from the .env file
     load_dotenv()
-    model = ChatGoogleGenerativeAI(model="gemini-3.6-flash")
+    model = ChatGoogleGenerativeAI(model="gemini-3.5-flash-lite")
     tools = SubgoalTools(buffer, subgoal).as_tool_list()
 
     # create_agent runs the react loop with langgraph: gemini thinks then calls a tool then reads the result then loop again
