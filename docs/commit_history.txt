@@ -1,4 +1,9 @@
-﻿2026-10-06  Add another test to test doc (test 20) and this was when executing the planning agent on my own question
+﻿2026-10-07  Update the readme limitations and the tests file to show the switch to gemini 3.5 flash lite and the tests of demo 1 and demo 2
+2026-10-07  fix one forgot change to flash 3.5 lite in subgoals.py. And change attempts max to 4 attempts for the subgoals, 1 try plus 3 retries as the report says
+2026-10-07  Switch to gemini 3.5 flash lite instead of 3.6 flash. 3.6 flash offeres a free quota of 20 requests a day and kept running out, 3.5 flash lite allows 500
+2026-10-07  Another try after the first demo failed, the idea is  to run the first agent with successful subgoald, added a  30 seconds wait after each tool call, thatway gemini doesnt get more than 5 requests a minute
+2026-10-06  Update and refresh the commit history and the pytest output and also saved them both in UTF 8 that way they are  displayed on GitHub
+2026-10-06  Add another test to test doc (test 20) and this was when executing the planning agent on my own question
 2026-10-06  Add the commit history that explains the work progress
 2026-10-06  Add the libraries, the AI model, the data sources and the references to the readme file
 2026-10-06  Add the pytest output for  the  unit tests
