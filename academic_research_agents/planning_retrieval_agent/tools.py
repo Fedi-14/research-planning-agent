@@ -1,7 +1,9 @@
 from langchain_core.tools import StructuredTool
 from academic_research_agents.sources import search_pubmed
 
-# we set 4 maximum searches per subgoal, that's one search and the 3 max attempts for subgoals. That way an agent won't search forever
+import time
+
+# like we did with report rule of subgoals, we set 4 maximum searches per subgoal, that's one search and the 3 max attempts for searches. That way an agent won't search forever
 MAX_SEARCHES = 4
 # 10 papers per search: maximum 40 per subgoal for the reviewer to review
 RESULTS_PER_SEARCH = 10
@@ -50,6 +52,9 @@ class SubgoalTools:
             if len(titles) < 5:
                 titles.append(record.title)
 
+        # we wait 30 seconds so gemini doesn't get more than 5 requests a minute (the free tier limit, demo 1 failed on it)
+        time.sleep(30)
+
         # this text is what gemini reads before deciding the next step (react)
         return f"{len(records)} papers found, {new_count} new for this subgoal. First titles: " + " | ".join(titles)
 
@@ -58,6 +63,10 @@ class SubgoalTools:
         reason: why, in one sentence."""
         self.subgoal.status = "done"
         print(f"[subgoal {self.subgoal.subgoal_id}] finished | reason: {reason}")
+        
+        # same wait here, for the 5 requests a minute limit
+        time.sleep(30)
+
         return "Subgoal finished."
 
     def as_tool_list(self):
