@@ -33,7 +33,7 @@ def generate_subgoals(research_question):
 
     Research question : {research_question}"""
 
-    # we try from 1 to 3 times, if we still don't get a valid answer (too few descriptions of the subgoal, too many descriptions or invalid non JSON format)
+    # we try from 1 to 4 times, if we still don't get a valid answer (too few descriptions of the subgoal, too many descriptions or invalid non JSON format)
     research_plan = None
     for research_attempt in range (MAX_ATTEMPTS):
         try:
@@ -42,9 +42,9 @@ def generate_subgoals(research_question):
         except OutputParserException:
             print(f"Attempt {research_attempt + 1} of {MAX_ATTEMPTS}: the subgoal list was invalid, asking again")
     
-    # After 3 invalid answers from gemini, we stop. a person has to look at the  question
+    # After 4 invalid answers from gemini, we stop. a person has to look at the  question
     if (research_plan is None):
-        raise ValueError(f"No valid subgoal list after 3 attempts. A person is needed to review the research question")
+        raise ValueError(f"No valid subgoal list after 4 attempts. A person is needed to review the research question")
 
     # we return the subgoals and give them statuses, the model only proposes the descriptions
     subgoals = []
