@@ -1,4 +1,7 @@
-﻿2026-10-07  Update the readme limitations and the tests file to show the switch to gemini 3.5 flash lite and the tests of demo 1 and demo 2
+﻿2026-10-08  Fix the comments and error message in subgoals.py: 4 attempts, 1 try plus 3 retries as the report says
+2026-10-07  Update readme after a 10 on 10 successful run with gemini lite
+2026-10-07  Refresh the commit history
+2026-10-07  Update the readme limitations and the tests file to show the switch to gemini 3.5 flash lite and the tests of demo 1 and demo 2
 2026-10-07  fix one forgot change to flash 3.5 lite in subgoals.py. And change attempts max to 4 attempts for the subgoals, 1 try plus 3 retries as the report says
 2026-10-07  Switch to gemini 3.5 flash lite instead of 3.6 flash. 3.6 flash offeres a free quota of 20 requests a day and kept running out, 3.5 flash lite allows 500
 2026-10-07  Another try after the first demo failed, the idea is  to run the first agent with successful subgoald, added a  30 seconds wait after each tool call, thatway gemini doesnt get more than 5 requests a minute
