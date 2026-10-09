@@ -129,7 +129,11 @@ Bratman, M.E., Israel, D.J. and Pollack, M.E. (1988) 'Plans and resource-bounded
 
 Finin, T. et al. (1994) 'KQML as an Agent Communication Language', Proceedings of the Third International Conference on Information and Knowledge Management (CIKM '94), Gaithersburg, MD. New York: ACM, pp. 456-463. Available at: https://doi.org/10.1145/191246.191322
 
+Google (2026) Gemini 3.5 Flash-Lite. Available at: https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite (Accessed: 7 October 2026).
+
 Google DeepMind (2026) Gemini 3.6 Flash: model card. Available at: https://deepmind.google/models/model-cards/gemini-3-6-flash/ (Accessed: 27 August 2026).
+
+Group B (2026) LLM-Powered Academic Research Planning Agent: design proposal. Intelligent Agents module, University of Essex Online. Unpublished team report.
 
 National Library of Medicine (n.d.) The 9 E-utilities and Associated Parameters. Available at: https://dataguide.nlm.nih.gov/eutilities/utilities.html (Accessed: 3 October 2026).
 
