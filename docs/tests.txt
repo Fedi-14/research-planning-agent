@@ -111,13 +111,13 @@ Failed first: the proxy wasn't set in the terminal, python couldn't reach google
 Fixed: I set the proxy.
 OK, with failures handled: 4 subgoals, 20 papers saved. Gemini hit three limits: overloaded (503), 5 requests per minute, and 20 requests per day. Each subgoal was marked failed, and the run went on and saved the file, as designed.
 
-TEST 22 - the planning agent on my search question, with gemini 3.5 flash lite (demo 1)
+TEST 21 - the planning agent on my search question, with gemini 3.5 flash lite (demo 1)
 python -c "from academic_research_agents.planning_retrieval_agent.agent import run_planning_agent; run_planning_agent('Are family, friends and social connections associated with better health in adults?')"
 Failed first: subgoals.py was still on gemini 3.6 flash and its daily limit was used up.
 Fixed: updated the the file, all the project uses now gemini 3.5 flash lite.
 OK: 4 subgoals, 54 papers saved and the gemini limit wasn't reached. gemini made its searches more precise and performed well when they found nothing (0, then 3, then 10 papers). Subgoal 4 failed because pubmed answered with 500 server error; it was marked failed and the execution continued, exactly what was planned.
 
-TEST 23 - the streamit review page on gemini choices (demo 2)
+TEST 22 - the streamit review page on gemini choices (demo 2)
 python -m streamlit run app.py, with the latest run and that's runs/run-20261007-055327.json
 OK: the 7 papers gemini chose, with the reason and the quote. 7 decisions saved.
 

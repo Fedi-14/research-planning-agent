@@ -1,4 +1,6 @@
-﻿2026-10-08  Fix the comments and error message in subgoals.py: 4 attempts, 1 try plus 3 retries as the report says
+﻿2026-10-09  Add missing references
+2026-10-08  Refresh the commit history
+2026-10-08  Fix the comments and error message in subgoals.py: 4 attempts, 1 try plus 3 retries as the report says
 2026-10-07  Update readme after a 10 on 10 successful run with gemini lite
 2026-10-07  Refresh the commit history
 2026-10-07  Update the readme limitations and the tests file to show the switch to gemini 3.5 flash lite and the tests of demo 1 and demo 2
